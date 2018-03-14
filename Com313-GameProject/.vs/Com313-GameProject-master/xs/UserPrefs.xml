@@ -1,0 +1,25 @@
+﻿<Properties StartupConfiguration="{D701C8D8-11E7-90F3-0894-65EF4F2D6C81}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/_Scripts/LevelManager.cs">
+    <Files>
+      <File FileName="Assets/_Scripts/BarbarianScripts/BarbarianEnemyController.cs" Line="27" Column="12" />
+      <File FileName="Assets/_Scripts/BarbarianScripts/EnemyAttack.cs" Line="46" Column="33" />
+      <File FileName="Assets/_Scripts/BarbarianScripts/PlayerController.cs" Line="58" Column="1" />
+      <File FileName="Assets/_Scripts/BarbarianScripts/CameraFollow.cs" Line="29" Column="1" />
+      <File FileName="Assets/_Scripts/BarbarianScripts/EnemyHealth.cs" Line="73" Column="46" />
+      <File FileName="Assets/_Scripts/BarbarianScripts/PlayerHealth.cs" Line="55" Column="35" />
+      <File FileName="Assets/_Scripts/CountdownTimer.cs" Line="69" Column="57" />
+      <File FileName="Assets/_Scripts/ScoreManager.cs" Line="19" Column="19" />
+      <File FileName="Assets/_Scripts/Tolevel2.cs" Line="15" Column="43" />
+      <File FileName="Assets/_Scripts/PlayerShooting.cs" Line="41" Column="1" />
+      <File FileName="Assets/_Scripts/BarbarianScripts/GameManager.cs" Line="11" Column="16" />
+      <File FileName="Assets/_Scripts/LevelManager.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Com313-GameProject-master PreferredExecutionTarget="Unity.Editor" />
+  <MultiItemStartupConfigurations />
+</Properties>

@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: cd2389b91a970364ea566c7644d489b1
+timeCreated: 1481981595
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Bakery
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: bb653c52bbee9d54fb6f0d40f9e2dc0b, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
