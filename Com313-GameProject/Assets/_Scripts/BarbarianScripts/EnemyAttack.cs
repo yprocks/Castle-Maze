@@ -1,57 +1,59 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyAttack : MonoBehaviour
+namespace _Scripts.BarbarianScripts
 {
-    [SerializeField] private float range = 3f;
-    [SerializeField] private float attackRate = 1f;
-
-    private Animator anim;
-    private GameObject player;
-    private bool playerInRange;
-    private EnemyHealth enemyHealth;
-    private BoxCollider[] weaponColliders;
-
-    void Start()
+    public class EnemyAttack : MonoBehaviour
     {
-        weaponColliders = GetComponentsInChildren<BoxCollider>();
-        enemyHealth = GetComponent<EnemyHealth>();
-        player = GameManager.instance.Player;
-        anim = GetComponent<Animator>();
-        StartCoroutine(Attack());
-    }
+        [SerializeField] private float _range = 3f;
+        [SerializeField] private float _attackRate = 1f;
 
-    void Update()
-    {
-        if (Vector3.Distance(transform.position, player.transform.position) < range && enemyHealth.IsAlive)
-            playerInRange = true;
-        else
-            playerInRange = false;
-    }
+        private Animator _anim;
+        private GameObject _player;
+        private bool _playerInRange;
+        private EnemyHealth _enemyHealth;
+        private BoxCollider[] _weaponColliders;
 
-    IEnumerator Attack()
-    {
-        if (playerInRange && !GameManager.instance.GameOver)
+        private void Start()
         {
-            anim.Play("Attack");
-            yield return new WaitForSeconds(attackRate);
+            _weaponColliders = GetComponentsInChildren<BoxCollider>();
+            _enemyHealth = GetComponent<EnemyHealth>();
+            _player = GameManager.Instance.Player;
+            _anim = GetComponent<Animator>();
+            StartCoroutine(Attack());
         }
 
-        yield return null;
-        StartCoroutine(Attack());
+        public void Update()
+        {
+            if (Vector3.Distance(transform.position, _player.transform.position) < _range && _enemyHealth.IsAlive)
+                _playerInRange = true;
+            else
+                _playerInRange = false;
+        }
 
-    }
+        // ReSharper disable once FunctionRecursiveOnAllPaths
+        private IEnumerator Attack()
+        {
+            if (_playerInRange && !GameManager.Instance.GameOver)
+            {
+                _anim.Play("Attack");
+                yield return new WaitForSeconds(_attackRate);
+            }
 
-    public void EnemyBeginAttack()
-    {
-        foreach (var _collider in weaponColliders)
-            _collider.enabled = true;
-    }
+            yield return null;
+            StartCoroutine(Attack());
+        }
 
-    public void EnemyEndAttack()
-    {
-        foreach (var _collider in weaponColliders)
-            _collider.enabled = false;
+        public void EnemyBeginAttack()
+        {
+            foreach (var weaponcollider in _weaponColliders)
+                weaponcollider.enabled = true;
+        }
+
+        public void EnemyEndAttack()
+        {
+            foreach (var weaponCollider in _weaponColliders)
+                weaponCollider.enabled = false;
+        }
     }
 }

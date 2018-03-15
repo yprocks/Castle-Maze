@@ -1,74 +1,95 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+namespace _Scripts.BarbarianScripts
 {
-    public static GameManager instance = null;
-    public Transform[] spawnPoints;
-    public GameObject[] enemy;
-    public int TotalEnemies = 20;
-
-    [SerializeField] public GameObject player;
-    private bool gameOver = false;
-    private int enemyCount;
-
-    public bool GameOver
+    public class GameManager : MonoBehaviour
     {
-        get { return gameOver; }
-    }
+        public static GameManager Instance;
+        public Transform[] SpawnPoints;
+        public GameObject[] Enemy;
+        public int TotalEnemies = 20;
+        public Text LevelText;
 
-    public GameObject Player
-    {
-        get { return player; }
-    }
+        [SerializeField] private GameObject _player;
+        private int _enemyCount;
+        private int _currentLevel;
+        private float _generatedSpawnTime = 1;
+        private float _currentSpawnTime = 0;
 
-    private void Awake()
-    {
-        if (instance == null)
-            instance = this;
-        else if (instance != this)
-            Destroy(gameObject);
-        DontDestroyOnLoad(gameObject);
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    public void Start()
-    {
-        enemyCount = 0;
-        InvokeRepeating("SpawnEnemies", 0f, 1f);
-    }
-
-    private void SpawnEnemies()
-    {
-        if (enemyCount <= TotalEnemies)
-            foreach (var spawnPoint in spawnPoints)
-            {
-                if (spawnPoint.transform.childCount == 0)
-                {
-                    GameObject spawnedEnemy = Instantiate(enemy[0], spawnPoint.transform.position, spawnPoint.transform.rotation);
-                    spawnedEnemy.transform.parent = spawnPoint;
-                    spawnedEnemy.GetComponent<BarbarianEnemyController>().enabled = true;
-                    enemyCount++;
-                }
-            }
-    }
-
-    public void PlayerHit(int currentHP)
-    {
-        if (currentHP > 0)
-            gameOver = false;
-        else
-            gameOver = true;
-    }
-
-    void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
-    {
-        if (scene.name == "GameOver")
+        public int CurrentLevel
         {
-            Destroy(gameObject);
+            get { return _currentLevel; }
+            private set { _currentLevel = value; }
+        }
+        
+        public GameManager()
+        {
+            GameOver = false;
+        }
+
+        public bool GameOver { get; private set; }
+
+        public GameObject Player
+        {
+            get { return _player; }
+        }
+
+        private void Awake()
+        {
+            if (Instance == null)
+                Instance = this;
+            else if (Instance != this)
+                Destroy(gameObject);
+            DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        public void Start()
+        {
+            _currentLevel = 1;
+            _enemyCount = 0;
+            LevelText.text = "Level " + _currentLevel;
+            InvokeRepeating("SpawnEnemies", 0f, 1f);
+        }
+
+        private void SpawnEnemies()
+        {
+            if (_enemyCount > TotalEnemies) return;
+            foreach (var spawnPoint in SpawnPoints)
+            {
+                if (spawnPoint.transform.childCount != 0) continue;
+                var spawnedEnemy = Instantiate(Enemy[0], spawnPoint.transform.position,
+                    spawnPoint.transform.rotation);
+                spawnedEnemy.transform.parent = spawnPoint;
+                spawnedEnemy.GetComponent<BarbarianEnemyController>().enabled = true;
+                _enemyCount++;
+            }
+        }
+
+        private void Update()
+        {
+            _currentSpawnTime += Time.deltaTime;
+            if (_currentSpawnTime > _generatedSpawnTime)
+            {
+                _currentSpawnTime = 0;
+            }
+        }
+
+        public void PlayerHit(int currentHp)
+        {
+            GameOver = currentHp <= 0;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            this._currentLevel = SceneManager.GetActiveScene().buildIndex + 1;
+            LevelText.text = "Level " + _currentLevel;
+            if (scene.name == "GameOver")
+            {
+                Destroy(this.gameObject);
+            }
         }
     }
-
 }

@@ -1,39 +1,40 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Assertions;
 
-public class CameraFollow : MonoBehaviour
+namespace _Scripts.BarbarianScripts
 {
-    [SerializeField]
-    private Transform target;
-    [SerializeField]
-    private float smoothing = 5f;
-
-    private Vector3 offset;
-
-    private void Awake()
+    public class CameraFollow : MonoBehaviour
     {
-        Assert.IsNotNull(target);
-    }
+        [SerializeField]
+        private Transform _target;
+        [SerializeField]
+        private float _smoothing = 5f;
 
-    void Start()
-    {
-        offset = transform.position - target.position;
-    }
+        private Vector3 _offset;
 
-    void LateUpdate()
-    {
-        Vector3 targetCameraPosition = target.position + offset;
+        private void Awake()
+        {
+//            Assert.IsNotNull(_target);
+        }
 
-        Quaternion targetRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, target.rotation.eulerAngles.y, 0f);
+        private void Start()
+        {
+            _offset = transform.position - _target.position;
+        }
 
-        transform.position = Vector3.Lerp(transform.position, 
-                                          targetCameraPosition,
-                                          smoothing * Time.deltaTime);
+        private void LateUpdate()
+        {
+            var targetCameraPosition = _target.position + _offset;
 
-        //transform.rotation = Quaternion.Slerp(transform.rotation, 
-                                             //targetRotation,
-                                             //smoothing * Time.deltaTime);
+//            var targetRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, _target.rotation.eulerAngles.y, 0f);
+
+            transform.position = Vector3.Lerp(transform.position, 
+                targetCameraPosition,
+                _smoothing * Time.deltaTime);
+
+            //transform.rotation = Quaternion.Slerp(transform.rotation, 
+            //targetRotation,
+            //smoothing * Time.deltaTime);
+        }
     }
 }

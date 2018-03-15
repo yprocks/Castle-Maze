@@ -1,39 +1,38 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Assertions;
 
-public class BarbarianEnemyController : MonoBehaviour
+namespace _Scripts.BarbarianScripts
 {
-    private Transform player;
-    private NavMeshAgent navAgent;
-    private Animator anim;
-    private EnemyHealth enemyHealth;
-
-    void Start()
+    public class BarbarianEnemyController : MonoBehaviour
     {
-        player = GameManager.instance.player.transform;
-        navAgent = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>();
-        enemyHealth = GetComponent<EnemyHealth>();
-    }
+        private Transform _player;
+        private NavMeshAgent _navAgent;
+        private Animator _anim;
+        private EnemyHealth _enemyHealth;
 
-    void Update()
-    {
-        if (enemyHealth.IsAlive)
+        private void Start()
         {
-            if (!GameManager.instance.GameOver)
-                navAgent.SetDestination(player.position);
-            else
-            {
-                navAgent.enabled = false;
-                anim.Play("Idle");
-            }
+            _player = GameManager.Instance.Player.transform;
+            _navAgent = GetComponent<NavMeshAgent>();
+            _anim = GetComponent<Animator>();
+            _enemyHealth = GetComponent<EnemyHealth>();
         }
-        else
-            navAgent.enabled = false;
+
+        private void Update()
+        {
+            if (_enemyHealth.IsAlive)
+            {
+                if (!GameManager.Instance.GameOver)
+                    _navAgent.SetDestination(_player.position);
+                else
+                {
+                    _navAgent.enabled = false;
+                    _anim.Play("Idle");
+                }
+            }
+            else
+                _navAgent.enabled = false;
         
+        }
     }
 }

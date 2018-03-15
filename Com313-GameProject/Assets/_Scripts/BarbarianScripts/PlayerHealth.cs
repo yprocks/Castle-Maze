@@ -1,75 +1,74 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerHealth : MonoBehaviour
+namespace _Scripts.BarbarianScripts
 {
-    [SerializeField] private int health = 100;
-    [SerializeField] private float timeSinceLastHit = 2f;
-    public Image healthIcon;
-
-    private float timer;
-
-    private CharacterController charController;
-    private PlayerController playerController;
-    private Animator anim;
-    private AudioSource audioSource;
-    private int currentHealth;
-
-    void Start()
+    public class PlayerHealth : MonoBehaviour
     {
-        anim = GetComponent<Animator>();
-        charController = GetComponent<CharacterController>();
-        playerController = GetComponent<PlayerController>();
-        audioSource = GetComponent<AudioSource>();
-        currentHealth = health;
-        healthIcon.fillAmount = (float) currentHealth / health;
-    }
+        [SerializeField] private int _health = 100;
+        [SerializeField] private float _timeSinceLastHit = 2f;
+        public Image HealthIcon;
 
-    void Update()
-    {
-        timer += Time.deltaTime;
+        private float _timer;
 
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (timer >= timeSinceLastHit && !GameManager.instance.GameOver)
+        private CharacterController _charController;
+        private PlayerController _playerController;
+        private Animator _anim;
+        private AudioSource _audioSource;
+        private int _currentHealth;
+        private ParticleSystem _blood;
+        
+        private void Start()
         {
-            if (other.tag == "Weapon")
+            _anim = GetComponent<Animator>();
+            _charController = GetComponent<CharacterController>();
+            _playerController = GetComponent<PlayerController>();
+            _audioSource = GetComponent<AudioSource>();
+            _blood = GetComponentInChildren<ParticleSystem>();
+            _currentHealth = _health;
+            HealthIcon.fillAmount = (float) _currentHealth / _health;
+        }
+
+        private void Update()
+        {
+            _timer += Time.deltaTime;
+
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!(_timer >= _timeSinceLastHit) || GameManager.Instance.GameOver) return;
+            if (!other.CompareTag("Weapon")) return;
+            _blood.Play();
+            TakeHit();
+            _timer = 0;
+        }
+
+        private void TakeHit()
+        {
+            if (_currentHealth > 0)
             {
-                TakeHit();
-                timer = 0;
+                _currentHealth -= 10;
+                HealthIcon.fillAmount = (float) _currentHealth / _health;
+                GameManager.Instance.PlayerHit(_currentHealth);
+                _anim.Play("Hurt");
+                _audioSource.PlayOneShot(_audioSource.clip);
             }
-        }
-    }
 
-    private void TakeHit()
-    {
-        if (currentHealth > 0)
+            if (_currentHealth <= 0)
+                KillPlayer();
+
+        }
+
+        private void KillPlayer()
         {
-            currentHealth -= 10;
-            healthIcon.fillAmount = (float) currentHealth / health;
-            GameManager.instance.PlayerHit(currentHealth);
-            anim.Play("Hurt");
-            audioSource.PlayOneShot(audioSource.clip);
+            GameManager.Instance.PlayerHit(_currentHealth);
+            _anim.SetTrigger("heroDie");
+            _charController.enabled = false;
+            _playerController.enabled = false;
+            _audioSource.PlayOneShot(_audioSource.clip);
         }
 
-        if (currentHealth <= 0)
-            KillPlayer();
 
     }
-
-    private void KillPlayer()
-    {
-        GameManager.instance.PlayerHit(currentHealth);
-        anim.SetTrigger("heroDie");
-        charController.enabled = false;
-        playerController.enabled = false;
-        audioSource.PlayOneShot(audioSource.clip);
-    }
-
-
 }
