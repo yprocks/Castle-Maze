@@ -396,6 +396,8 @@
             <e p="GameManager.cs" t="Include" />
             <e p="PlayerController.cs" t="Include" />
             <e p="PlayerHealth.cs" t="Include" />
+            <e p="PortalAnimationScript.cs" t="Include" />
+            <e p="PortalScript.cs" t="Include" />
           </e>
           <e p="ButtonManager.cs" t="Include" />
           <e p="CountdownTimer.cs" t="Include" />
