@@ -1,19 +1,17 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class MiniMap : MonoBehaviour {
+namespace _Scripts
+{
+	public class MiniMap : MonoBehaviour {
 
-    public Transform Target;
+		public Transform Target;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        transform.position = new Vector3(Target.position.x, transform.position.y, Target.position.z);
+		// Use this for initialization
 
-	
+		// Update is called once per frame
+		private void Update()
+		{
+			transform.position = new Vector3(Target.position.x, transform.position.y, Target.position.z);
+		}
 	}
 }

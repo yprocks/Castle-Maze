@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityStandardAssets.Vehicles.Car;
 
 namespace _Scripts.BarbarianScripts
 {
@@ -17,6 +16,9 @@ namespace _Scripts.BarbarianScripts
 
         public float PortalSpawnTime;
 
+        // ReSharper disable once InconsistentNaming
+        private float _playerXP;
+        
         // Portal Transform Variables
         private GameObject _cutScenesCamera;
 
@@ -67,13 +69,14 @@ namespace _Scripts.BarbarianScripts
 
         public void Start()
         {
+            _playerXP = 0;
             _currentLevel = SceneManager.GetActiveScene().buildIndex;
             _enemyCount = 0;
             LevelText.text = "Level " + _currentLevel;
             _cutScenesCamera = GameObject.Find("Follow Camera");
             GameOver = false;
             _portalSpawnTimer = PortalSpawnTime;
-            InvokeRepeating("SpawnEnemies", 0f, 1f);
+            InvokeRepeating("SpawnEnemies", 2f, 1f);
         }
 
         private void SpawnEnemies()
@@ -82,7 +85,7 @@ namespace _Scripts.BarbarianScripts
             foreach (var spawnPoint in SpawnPoints)
             {
                 if (spawnPoint.transform.childCount != 0) continue;
-                var spawnedEnemy = Instantiate(Enemy[0], spawnPoint.transform.position,
+                var spawnedEnemy = Instantiate(Enemy[Random.Range(0, _currentLevel)], spawnPoint.transform.position,
                     spawnPoint.transform.rotation);
                 spawnedEnemy.transform.parent = spawnPoint;
                 spawnedEnemy.GetComponent<BarbarianEnemyController>().enabled = true;
@@ -94,10 +97,8 @@ namespace _Scripts.BarbarianScripts
         {
             _currentSpawnTime += Time.deltaTime;
             if (_currentSpawnTime > _generatedSpawnTime)
-            {
                 _currentSpawnTime = 0;
-            }
-
+            
             if (CurrentLevel <= 1) return;
 
             if (CurrentLevel == 2)
@@ -194,6 +195,13 @@ namespace _Scripts.BarbarianScripts
             {
                 Destroy(this.gameObject);
             }
+        }
+
+        // ReSharper disable once InconsistentNaming
+        public void AddXP(float xP)
+        {
+            _playerXP += xP;
+            XPScript.Instance.UpdateXP(_playerXP);
         }
     }
 }

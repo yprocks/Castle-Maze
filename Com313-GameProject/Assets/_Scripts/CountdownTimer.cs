@@ -50,25 +50,25 @@ public class CountdownTimer : MonoBehaviour
     //}
 
     //public static CountdownTimer instance;
-    public float TotalTime = 180;
-    private float timeLeft;
-    public Image timeBar;
-    private Text text;
-
-
-    void Awake()
-    {
-        text = GetComponent<Text>();
-        timeLeft = TotalTime;
-    }
-
-    void Update()
-    {
-        timeLeft -= Time.deltaTime;
-        text.text = "Time Left: " + Mathf.Round(timeLeft);
-        timeBar.fillAmount = (float)timeLeft / TotalTime;
-
-        if (timeLeft <= 0)
-            SceneManager.LoadScene("StartMenu");
-    }
+//    public float TotalTime = 180;
+//    private float timeLeft;
+//    public Image timeBar;
+//    private Text text;
+//
+//
+//    void Awake()
+//    {
+//        text = GetComponent<Text>();
+//        timeLeft = TotalTime;
+//    }
+//
+//    void Update()
+//    {
+//        timeLeft -= Time.deltaTime;
+//        text.text = "Time Left: " + Mathf.Round(timeLeft);
+//        timeBar.fillAmount = (float)timeLeft / TotalTime;
+//
+//        if (timeLeft <= 0)
+//            SceneManager.LoadScene("StartMenu");
+//    }
 }

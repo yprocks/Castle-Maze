@@ -8,10 +8,16 @@ namespace _Scripts.BarbarianScripts
     {
         public bool IsAlive { get; private set; }
 
+        // ReSharper disable once InconsistentNaming
+        public GameObject UI_Points;
+        // ReSharper disable once InconsistentNaming
+        public Sprite UI_PointSprite;
+        
         [SerializeField] private int _health = 20;
         [SerializeField] private float _timeSinceLastHit = 0.5f;
         [SerializeField] private float _destroySpeed = 2f;
-
+        [SerializeField] private float _xPPoints = 10f;
+        
         private AudioSource _audioSource;
         private NavMeshAgent _navAgent;
         private Rigidbody _rigidbody;
@@ -22,6 +28,13 @@ namespace _Scripts.BarbarianScripts
         private float _timer;
         private ParticleSystem _blood;
 
+        private SpriteRenderer _uiRenderer;
+        
+        private void Awake()
+        {
+            IsAlive = true;
+        }
+
         private void Start()
         {
             _rigidbody = GetComponent<Rigidbody>();
@@ -30,10 +43,11 @@ namespace _Scripts.BarbarianScripts
             _anim = GetComponent<Animator>();
             _audioSource = GetComponent<AudioSource>();
             _blood = GetComponentInChildren<ParticleSystem>();
-            IsAlive = true;
             _currentHealth = _health;
             _timer = 0f;
             _destroyEnemy = false;
+
+   
         }
 
         private void Update()
@@ -41,9 +55,8 @@ namespace _Scripts.BarbarianScripts
             _timer += Time.deltaTime;
 
             if (_destroyEnemy)
-            {
                 transform.Translate(-Vector3.up * _destroySpeed * Time.deltaTime);
-            }
+            
         }
 
         private void OnTriggerEnter(Collider other)
@@ -72,6 +85,12 @@ namespace _Scripts.BarbarianScripts
 
         private void KillEnemy()
         {
+            var point = Instantiate(UI_Points, transform.position + Vector3.up, this.transform.rotation);
+            _uiRenderer = point.GetComponent<SpriteRenderer>();
+            _uiRenderer.sprite = UI_PointSprite;
+            _uiRenderer.flipX = true;
+            GameManager.Instance.AddXP(_xPPoints);
+            point.transform.parent  = this.transform;
             _capsuleCollider.enabled = false;
             _anim.SetTrigger("enemyDie");
             _rigidbody.isKinematic = true;

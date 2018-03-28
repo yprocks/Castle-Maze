@@ -13,9 +13,9 @@ namespace _Scripts.BarbarianScripts
         private void Start()
         {
             _player = GameManager.Instance.Player.transform;
-            _navAgent = GetComponent<NavMeshAgent>();
             _anim = GetComponent<Animator>();
             _enemyHealth = GetComponent<EnemyHealth>();
+            _navAgent = GetComponent<NavMeshAgent>();
         }
 
         private void Update()
