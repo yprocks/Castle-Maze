@@ -13,7 +13,7 @@ namespace _Scripts.BarbarianScripts
         public int TotalEnemies = 20;
         public Text LevelText;
         public GameObject Portal;
-
+            
         public float PortalSpawnTime;
 
         // ReSharper disable once InconsistentNaming
@@ -63,8 +63,8 @@ namespace _Scripts.BarbarianScripts
                 Instance = this;
             else if (Instance != this)
                 Destroy(gameObject);
-            DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded;
+//            DontDestroyOnLoad(gameObject);
+//            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         public void Start()

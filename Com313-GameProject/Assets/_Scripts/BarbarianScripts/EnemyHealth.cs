@@ -79,7 +79,7 @@ namespace _Scripts.BarbarianScripts
 
             if (_currentHealth > 0) return;
             IsAlive = false;
-            ScoreManager.Instance.KillEnemy();
+//            ScoreManager.Instance.KillEnemy();
             KillEnemy();
         }
 
