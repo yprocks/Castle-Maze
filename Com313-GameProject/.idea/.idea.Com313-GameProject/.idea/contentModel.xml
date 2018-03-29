@@ -401,17 +401,24 @@
             <e p="PortalAnimationScript.cs" t="Include" />
             <e p="PortalScript.cs" t="Include" />
             <e p="UIPointsScript.cs" t="Include" />
+            <e p="XPScript.cs" t="Include" />
           </e>
-          <e p="CountdownTimer.cs" t="Include" />
-          <e p="LevelExit.cs" t="Include" />
-          <e p="LevelManager.cs" t="Include" />
+          <e p="LevelHelpers" t="Include">
+            <e p="CameraAnimScript.cs" t="Include" />
+            <e p="DoorAnimScript.cs" t="Include" />
+            <e p="LevelExit.cs" t="Include" />
+            <e p="LevelExitAnimation.cs" t="Include" />
+            <e p="MiniMap.cs" t="Include" />
+            <e p="ScoreManager.cs" t="Include" />
+          </e>
           <e p="MenuScripts" t="Include">
             <e p="AnimationEvents.cs" t="Include" />
+            <e p="GameOverScript.cs" t="Include" />
             <e p="MenuScript.cs" t="Include" />
           </e>
-          <e p="MiniMap.cs" t="Include" />
-          <e p="ScoreManager.cs" t="Include" />
-          <e p="XPScript.cs" t="Include" />
+          <e p="Statics" t="Include">
+            <e p="GameState.cs" t="Include" />
+          </e>
         </e>
         <e p="Plugins" t="Include">
           <e p="Editor" t="Include">

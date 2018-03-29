@@ -1,50 +1,58 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using _Scripts.Statics;
 
 namespace _Scripts.MenuScripts
 {
 	public class MenuScript : MonoBehaviour
 	{
-		[SerializeField] private GameObject _hero;
-		[SerializeField] private GameObject _tanker;
-		[SerializeField] private GameObject _ranger;
-		[SerializeField] private GameObject _soldier;
+		[SerializeField] protected GameObject Hero;
+		[SerializeField] protected GameObject Tanker;
+		[SerializeField] protected GameObject Ranger;
+		[SerializeField] protected GameObject Soldier;
 
-		private Animator _heroAnimator;
-		private Animator _tankerAnimator;
-		private Animator _rangerAnimator;
-		private Animator _soldierAnimator;
+		protected Animator HeroAnimator;
+		protected Animator TankerAnimator;
+		protected Animator RangerAnimator;
+		protected Animator SoldierAnimator;
 		
 		private void Start ()
 		{
-			_heroAnimator = _hero.GetComponent<Animator>();
-			_tankerAnimator = _tanker.GetComponent<Animator>();
-			_rangerAnimator = _ranger.GetComponent<Animator>();
-			_soldierAnimator = _soldier.GetComponent<Animator>();
-			_heroAnimator.SetBool("isWalking", true);
+			GetAnimComponents();
+			HeroAnimator.SetBool("isWalking", true);
 			StartCoroutine(ShowCase());
+		}
+
+		protected void GetAnimComponents()
+		{
+			HeroAnimator = Hero.GetComponent<Animator>();
+			TankerAnimator = Tanker.GetComponent<Animator>();
+			RangerAnimator = Ranger.GetComponent<Animator>();
+			SoldierAnimator = Soldier.GetComponent<Animator>();
 		}
 
 		// ReSharper disable once FunctionRecursiveOnAllPaths
 		private IEnumerator ShowCase()
 		{
 			yield return new WaitForSeconds(2f);
-			_heroAnimator.Play("SpinAttack");	
+			HeroAnimator.Play("SpinAttack");	
 			yield return new WaitForSeconds(2f);
-			_tankerAnimator.Play("Attack");
+			TankerAnimator.Play("Attack");
 			yield return new WaitForSeconds(3f);
-			_heroAnimator.Play("DoubleChop");
+			HeroAnimator.Play("DoubleChop");
 			yield return new WaitForSeconds(2f);
-			_soldierAnimator.Play("Attack");
+			SoldierAnimator.Play("Attack");
 			yield return new WaitForSeconds(2f);
-			_rangerAnimator.Play("Attack");
+			RangerAnimator.Play("Attack");
 			
 			StartCoroutine(ShowCase());
 		}
 
 		public void StartGame()
 		{
+			PlayerPrefs.SetFloat("PlayerXP", 0);
+			PlayerPrefs.SetInt("GameOver", (int)GameState.GameOn);
 			SceneManager.LoadScene(1);
 		}
 

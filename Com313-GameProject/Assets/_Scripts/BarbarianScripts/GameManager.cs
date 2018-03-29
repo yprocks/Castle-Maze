@@ -1,7 +1,9 @@
 ﻿using System.Collections;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using _Scripts.Statics;
 
 namespace _Scripts.BarbarianScripts
 {
@@ -13,7 +15,11 @@ namespace _Scripts.BarbarianScripts
         public int TotalEnemies = 20;
         public Text LevelText;
         public GameObject Portal;
-            
+        public GameObject ChildCamera;
+        private int _enemy;
+
+        private GameState _gameState;
+        
         public float PortalSpawnTime;
 
         // ReSharper disable once InconsistentNaming
@@ -36,21 +42,21 @@ namespace _Scripts.BarbarianScripts
 
         [SerializeField] private GameObject _player;
         private int _enemyCount;
-        private int _currentLevel;
         private readonly float _generatedSpawnTime = 1;
         private float _currentSpawnTime = 0;
 
-        private GameObject[] _portalsSpawns;
+        public GameObject[] PortalsSpawns;
         private bool _spawnedPortals = false;
         private float _portalSpawnTimer;
+        private bool _shownHintPanel;
+        private int _portalInScene;
 
-        public int CurrentLevel
+        public int CurrentLevel { get; private set; }
+
+        public bool GameOver
         {
-            get { return _currentLevel; }
-            private set { _currentLevel = value; }
+            get { return _gameState != GameState.GameOn; }
         }
-
-        public bool GameOver { get; private set; }
 
         public GameObject Player
         {
@@ -63,20 +69,25 @@ namespace _Scripts.BarbarianScripts
                 Instance = this;
             else if (Instance != this)
                 Destroy(gameObject);
-//            DontDestroyOnLoad(gameObject);
-//            SceneManager.sceneLoaded += OnSceneLoaded;
+            
+            CurrentLevel = SceneManager.GetActiveScene().buildIndex;
         }
 
         public void Start()
         {
-            _playerXP = 0;
-            _currentLevel = SceneManager.GetActiveScene().buildIndex;
+            _portalInScene = 0;
+            _shownHintPanel = false;
+            _enemy = TotalEnemies;
+            _gameState = GameState.GameOn;
+            _playerXP = PlayerPrefs.GetFloat("PlayerXP", 0);
             _enemyCount = 0;
-            LevelText.text = "Level " + _currentLevel;
+            LevelText.text = "Level " + CurrentLevel;
             _cutScenesCamera = GameObject.Find("Follow Camera");
-            GameOver = false;
             _portalSpawnTimer = PortalSpawnTime;
             InvokeRepeating("SpawnEnemies", 2f, 1f);
+            if(CurrentLevel == 2)
+                ChildCamera.SetActive(false);
+            XPScript.Instance.UpdateXP(_playerXP);
         }
 
         private void SpawnEnemies()
@@ -85,7 +96,7 @@ namespace _Scripts.BarbarianScripts
             foreach (var spawnPoint in SpawnPoints)
             {
                 if (spawnPoint.transform.childCount != 0) continue;
-                var spawnedEnemy = Instantiate(Enemy[Random.Range(0, _currentLevel)], spawnPoint.transform.position,
+                var spawnedEnemy = Instantiate(Enemy[Random.Range(0, CurrentLevel)], spawnPoint.transform.position,
                     spawnPoint.transform.rotation);
                 spawnedEnemy.transform.parent = spawnPoint;
                 spawnedEnemy.GetComponent<BarbarianEnemyController>().enabled = true;
@@ -95,6 +106,9 @@ namespace _Scripts.BarbarianScripts
 
         private void Update()
         {
+            if (EnemyKilled())
+                ShowHintText();
+            
             _currentSpawnTime += Time.deltaTime;
             if (_currentSpawnTime > _generatedSpawnTime)
                 _currentSpawnTime = 0;
@@ -104,28 +118,30 @@ namespace _Scripts.BarbarianScripts
             if (CurrentLevel == 2)
                 if (_enteredPortal)
                     MoveCameraToTargetPortal();
+            
+            if (_spawnedPortals) return;
+            _portalSpawnTimer -= Time.deltaTime;
 
-            if (_portalsSpawns == null)
-                _portalsSpawns = GameObject.FindGameObjectsWithTag("PortalSpawn");
-            else if (!_spawnedPortals)
-            {
-                _portalSpawnTimer -= Time.deltaTime;
+            if (_portalSpawnTimer <= 0)
+                SpawnPortals();
+        }
 
-                if (_portalSpawnTimer <= 0)
-                    SpawnPortals();
-            }
+        private void ShowHintText()
+        {
+            if (_shownHintPanel) return;
+            InGameTextManager.GetInstance().ShowPanelForSeconds("Hey Barbarian!", "Find a way to exit. Enough play with Orcs!!!", 15);
+            _shownHintPanel = true;
         }
 
         private void SpawnPortals()
         {
-            var i = 0;
-            while (i < 2)
+            while (_portalInScene < 2)
             {
-                var spawn = _portalsSpawns[Random.Range(0, _portalsSpawns.Length)];
+                var spawn = PortalsSpawns[Random.Range(0, PortalsSpawns.Length)];
                 if (spawn.transform.childCount != 0) continue;
                 var obj = Instantiate(Portal, spawn.transform.position, Quaternion.identity);
                 obj.transform.parent = spawn.transform;
-                i++;
+                _portalInScene ++;
             }
 
             _spawnedPortals = true;
@@ -134,7 +150,10 @@ namespace _Scripts.BarbarianScripts
 
         public void PlayerHit(int currentHp)
         {
-            GameOver = currentHp <= 0;
+            if (currentHp > 0) return;
+            _gameState = GameState.OrcWon;
+            PlayerPrefs.SetInt("GameOver", (int) GameState.OrcWon);
+            StartCoroutine(LoadNewLevel("GameOver"));
         }
 
         public void EnterPortal(GameObject portalCollided, GameObject playerCollided)
@@ -155,7 +174,9 @@ namespace _Scripts.BarbarianScripts
             yield return new WaitForSeconds(1f);
             _enteredPortal = value;
             if (_enteredPortal) yield break;
-            _playerObjectCollided.transform.position = _targetPortalPosition + new Vector3(2, 0, 2);
+            var playerTransform = _targetPortalPosition + new Vector3(2, 0, 2);
+            playerTransform.y = 1.8f;
+            _playerObjectCollided.transform.position = playerTransform;
             _playerObjectCollided.SetActive(true);
             _cutScenesCamera.GetComponent<CameraFollow>().enabled = true;
             if (_spawnedPortals) DestroyPortals();
@@ -166,7 +187,10 @@ namespace _Scripts.BarbarianScripts
         private void DestroyPortals()
         {
             foreach (var portal in _portals)
+            {
+                _portalInScene--;
                 Destroy(portal);
+            }
         }
 
         private void MoveCameraToTargetPortal()
@@ -187,21 +211,61 @@ namespace _Scripts.BarbarianScripts
 //            StopCoroutine(_teleportCoroutine);
         }
 
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            this._currentLevel = SceneManager.GetActiveScene().buildIndex;
-            LevelText.text = "Level " + _currentLevel;
-            if (scene.name == "GameOver")
-            {
-                Destroy(this.gameObject);
-            }
-        }
-
         // ReSharper disable once InconsistentNaming
         public void AddXP(float xP)
         {
             _playerXP += xP;
             XPScript.Instance.UpdateXP(_playerXP);
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private float GetXP()
+        {
+            return _playerXP;
+        }
+        
+        public void KillEnemy()
+        {
+            _enemy--;
+        }
+
+        public bool EnemyKilled()
+        {
+            return _enemy <= 0;
+        }
+
+        public void FoundExit()
+        {
+            if (CurrentLevel > 1 && !EnemyKilled()) return;
+            PlayerPrefs.SetFloat("PlayerXP", GetXP());
+
+            if (CurrentLevel == 2)
+            {
+                _gameState = GameState.PlayerWon;
+                PlayerPrefs.SetInt("GameOver", (int) GameState.PlayerWon);
+                StartCoroutine(LoadNewLevel("GameOver"));
+            }
+            else
+                StartCoroutine(LoadNewLevel(CurrentLevel + 1));
+
+        }
+        
+        private static IEnumerator LoadNewLevel(int index)
+        {
+            yield return new WaitForSeconds(2f);
+            SceneManager.LoadScene(index);
+        }
+        
+        private static IEnumerator LoadNewLevel(string level)
+        {            
+            yield return new WaitForSeconds(2f);
+            SceneManager.LoadScene(level);
+        }
+
+        public void PortalDestroyed()
+        {
+            _spawnedPortals = false;
+            _portalInScene--;
         }
     }
 }

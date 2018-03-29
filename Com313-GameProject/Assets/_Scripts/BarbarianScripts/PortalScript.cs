@@ -26,6 +26,7 @@ namespace _Scripts.BarbarianScripts
 
         private void DestroyScript()
         {
+            GameManager.Instance.PortalDestroyed();
             Destroy(this.gameObject);
         }
 

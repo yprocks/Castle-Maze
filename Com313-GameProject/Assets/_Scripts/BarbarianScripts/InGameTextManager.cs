@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,8 +7,12 @@ namespace _Scripts.BarbarianScripts
 	public class InGameTextManager : MonoBehaviour
 	{
 		private static InGameTextManager _instance;
-		
+
+		public string StartText;
+		public string StartTextTitle;
 		public Text InGameText;
+		public Text InGameTextTitle;
+		
 		// ReSharper disable once InconsistentNaming
 		public GameObject InGameTextUIPanel; 
 	
@@ -28,28 +32,37 @@ namespace _Scripts.BarbarianScripts
 		// Use this for initialization
 		private void Start () 
 		{
+			SetText(StartTextTitle, StartText);
 			Invoke("DisablePanel", 5f);
 		}
 
 		private void DisablePanel()
 		{
-			SetText("");
+			SetText("", "");
 			HidePanel();
 		}
 		
-		private void SetText(string text)
+		private void SetText(string title, string text)
 		{
+			InGameTextTitle.text = title;
 			InGameText.text = text;
 		}
-		
+
 		private void ShowPanel()
 		{
 			InGameTextUIPanel.SetActive(true);
 		}
-
-		public void ShowPanel(string text)
+		
+		private IEnumerator ShowPanel(int seconds)
 		{
-			SetText(text);
+			InGameTextUIPanel.SetActive(true);
+			yield return new WaitForSeconds(seconds);
+			InGameTextUIPanel.SetActive(false);
+		}
+
+		public void ShowPanel(string title, string text)
+		{
+			SetText(title, text);
 			ShowPanel();
 		}
 
@@ -58,10 +71,10 @@ namespace _Scripts.BarbarianScripts
 			InGameTextUIPanel.SetActive(false);
 		}
 
-		public void ShowPanelForSeconds(string text, int seconds)
+		public void ShowPanelForSeconds(string title, string text, int seconds)
 		{
-			SetText(text);
-			Invoke("ShowPanel", seconds);
+			SetText(title, text);
+			StartCoroutine(ShowPanel(seconds));
 		}
 	}
 }

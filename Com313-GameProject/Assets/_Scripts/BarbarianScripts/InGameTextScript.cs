@@ -5,6 +5,7 @@ namespace _Scripts.BarbarianScripts
 	public class InGameTextScript : MonoBehaviour
 	{
 		public string DisplayText;
+		public string DisplayTitleText;
 		
 		private InGameTextManager _manager;
 		
@@ -16,7 +17,7 @@ namespace _Scripts.BarbarianScripts
 		private void OnTriggerEnter(Collider other)
 		{
 			if(other.gameObject.CompareTag("Player"))
-			_manager.ShowPanel(DisplayText);
+			_manager.ShowPanel(DisplayTitleText, DisplayText);
 		}
 
 		private void OnTriggerExit(Collider other)
