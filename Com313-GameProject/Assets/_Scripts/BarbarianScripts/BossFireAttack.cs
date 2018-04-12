@@ -2,18 +2,17 @@
 
 namespace _Scripts.BarbarianScripts
 {
-	public class BossFireAttack : SkillDamage {
+	public class BossFireAttack : BossSkillDamage {
 
 		public float Speed = 7f;
 
-		private GameObject _player;
+		private GameObject _boss;
 		private Vector3 _direction;
 		
 		private void Start()
 		{
-			_player = GameManager.Instance.Player;
-			transform.rotation = Quaternion.LookRotation(_player.transform.forward);
-			_direction = _player.transform.position - transform.position;
+			_boss = GameObject.FindGameObjectWithTag("Boss");
+			transform.rotation = Quaternion.LookRotation(_boss.transform.forward);
 		}
 
 		protected new void Update ()

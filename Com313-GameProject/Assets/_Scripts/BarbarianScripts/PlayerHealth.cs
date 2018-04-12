@@ -45,15 +45,15 @@ namespace _Scripts.BarbarianScripts
                 Instantiate(HitSpell, other.transform.position, Quaternion.identity);
             
             _blood.Play();
-            TakeHit();
+            TakeHit(10);
             _timer = 0;
         }
 
-        private void TakeHit()
+        public void TakeHit(int damage)
         {
             if (_currentHealth > 0)
             {
-                _currentHealth -= 10;
+                _currentHealth -= damage;
                 GameManager.Instance.PlayerHit(_currentHealth);
                 _anim.Play("Hurt");
                 _audioSource.PlayOneShot(_audioSource.clip);

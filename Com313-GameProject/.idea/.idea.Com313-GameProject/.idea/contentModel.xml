@@ -393,6 +393,7 @@
             <e p="BarbarianEnemyController.cs" t="Include" />
             <e p="BossAttack.cs" t="Include" />
             <e p="BossFireAttack.cs" t="Include" />
+            <e p="BossSkillDamage.cs" t="Include" />
             <e p="CameraFollow.cs" t="Include" />
             <e p="DestroyAfterTime.cs" t="Include" />
             <e p="EnemyAttack.cs" t="Include" />

@@ -10,13 +10,13 @@ namespace _Scripts.BarbarianScripts
 
 		private EnemyHealth _enemyHealth;
 		private bool _collided;
-
+		
 		protected void Update ()
 		{
 			var hits = Physics.OverlapSphere(transform.position,
 				Radius, EnemyLayer);
-			
-			foreach (var hitCollider in hits)
+			    
+			foreach (var hitCollider  in hits)
 			{
 				_enemyHealth = hitCollider.GetComponent<EnemyHealth>();
 				_collided = true;
