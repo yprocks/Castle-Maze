@@ -389,17 +389,29 @@
         </e>
         <e p="_Scripts" t="Include">
           <e p="BarbarianScripts" t="Include">
+            <e p="Arrow.cs" t="Include" />
             <e p="BarbarianEnemyController.cs" t="Include" />
+            <e p="BossAttack.cs" t="Include" />
+            <e p="BossFireAttack.cs" t="Include" />
             <e p="CameraFollow.cs" t="Include" />
+            <e p="DestroyAfterTime.cs" t="Include" />
             <e p="EnemyAttack.cs" t="Include" />
             <e p="EnemyHealth.cs" t="Include" />
+            <e p="FireTornado.cs" t="Include" />
             <e p="GameManager.cs" t="Include" />
+            <e p="HealthPowerUp.cs" t="Include" />
             <e p="InGameTextManager.cs" t="Include" />
             <e p="InGameTextScript.cs" t="Include" />
             <e p="PlayerController.cs" t="Include" />
             <e p="PlayerHealth.cs" t="Include" />
+            <e p="PlayerSpecialAttack.cs" t="Include" />
             <e p="PortalAnimationScript.cs" t="Include" />
             <e p="PortalScript.cs" t="Include" />
+            <e p="PowerUp.cs" t="Include" />
+            <e p="PowerUpPanel.cs" t="Include" />
+            <e p="RangerAttack.cs" t="Include" />
+            <e p="SkillDamage.cs" t="Include" />
+            <e p="SpeedPowerUp.cs" t="Include" />
             <e p="UIPointsScript.cs" t="Include" />
             <e p="XPScript.cs" t="Include" />
           </e>
@@ -426,6 +438,10 @@
               <e p="Unity3DRider.cs" t="Include" />
             </e>
           </e>
+        </e>
+        <e p="Shaders" t="Include">
+          <e p="DistortionParticlesCutout.shader" t="Include" />
+          <e p="ParticleAdd.shader" t="Include" />
         </e>
       </e>
       <e p="Com313-GameProject.sln" t="IncludeFlat" />

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using _Scripts.Statics;
@@ -90,6 +91,9 @@ namespace _Scripts.MenuScripts
 			yield return new WaitForSeconds(1f);
 			HeroAnimator.Play("Die");
 			_audioSource.Play();
+			TankerAnimator.SetBool("playerInRange", true);
+			SoldierAnimator.SetBool("playerInRange", true);
+			RangerAnimator.SetBool("playerInRange", true);
 			TankerAnimator.Play("Idle");
 			SoldierAnimator.Play("Idle");
 			RangerAnimator.Play("Idle");

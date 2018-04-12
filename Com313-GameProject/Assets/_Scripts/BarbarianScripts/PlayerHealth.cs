@@ -8,7 +8,8 @@ namespace _Scripts.BarbarianScripts
         [SerializeField] private int _health = 100;
         [SerializeField] private float _timeSinceLastHit = 2f;
         public Image HealthIcon;
-
+        public GameObject HitSpell;
+        
         private float _timer;
 
         private CharacterController _charController;
@@ -17,7 +18,7 @@ namespace _Scripts.BarbarianScripts
         private AudioSource _audioSource;
         private int _currentHealth;
         private ParticleSystem _blood;
-        
+
         private void Start()
         {
             _anim = GetComponent<Animator>();
@@ -32,13 +33,17 @@ namespace _Scripts.BarbarianScripts
         private void Update()
         {
             _timer += Time.deltaTime;
-
+            SetHealthSilder();
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (!(_timer >= _timeSinceLastHit) || GameManager.Instance.GameOver) return;
-            if (!other.CompareTag("Weapon")) return;
+            if (!other.CompareTag("Weapon") && !other.CompareTag("BossWeapon")) return;
+
+            if (other.CompareTag("BossWeapon"))
+                Instantiate(HitSpell, other.transform.position, Quaternion.identity);
+            
             _blood.Play();
             TakeHit();
             _timer = 0;
@@ -49,7 +54,6 @@ namespace _Scripts.BarbarianScripts
             if (_currentHealth > 0)
             {
                 _currentHealth -= 10;
-                HealthIcon.fillAmount = (float) _currentHealth / _health;
                 GameManager.Instance.PlayerHit(_currentHealth);
                 _anim.Play("Hurt");
                 _audioSource.PlayOneShot(_audioSource.clip);
@@ -69,6 +73,19 @@ namespace _Scripts.BarbarianScripts
             _audioSource.PlayOneShot(_audioSource.clip);
         }
 
+        public void PowerUpHealth()
+        {
+            if (_currentHealth <= 70)
+                _currentHealth += 30;
+            else if(_currentHealth <= _health)
+                _currentHealth = _health;
+        }
 
+        private void SetHealthSilder()
+        {
+            var healthAmount = HealthIcon.fillAmount;
+            var toHealth = (float) _currentHealth / _health;
+            HealthIcon.fillAmount = Mathf.Lerp(healthAmount, toHealth, Time.deltaTime * 15f);
+        }
     }
 }

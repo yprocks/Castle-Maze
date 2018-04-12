@@ -23,5 +23,10 @@ namespace _Scripts.MenuScripts
         public void EndAttack()
         {
         }
+
+        public void FireArrow()
+        {
+            
+        }
     }
 }

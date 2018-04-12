@@ -5,16 +5,23 @@ namespace _Scripts.BarbarianScripts
 {
     public class EnemyAttack : MonoBehaviour
     {
-        [SerializeField] private float _range = 3f;
-        [SerializeField] private float _attackRate = 1f;
+        // ReSharper disable once InconsistentNaming
+        [SerializeField] protected float _range = 3f;
+        // ReSharper disable once InconsistentNaming
+        [SerializeField] protected float _attackRate = 1f;
 
+        // ReSharper disable once InconsistentNaming
         private Animator _anim;
+        // ReSharper disable once InconsistentNaming
         private GameObject _player;
+        // ReSharper disable once InconsistentNaming
         private bool _playerInRange;
+        // ReSharper disable once InconsistentNaming
         private EnemyHealth _enemyHealth;
+        // ReSharper disable once InconsistentNaming
         private BoxCollider[] _weaponColliders;
 
-        private void Start()
+        protected void Start()
         {
             _weaponColliders = GetComponentsInChildren<BoxCollider>();
             _enemyHealth = GetComponent<EnemyHealth>();
@@ -23,12 +30,19 @@ namespace _Scripts.BarbarianScripts
             StartCoroutine(Attack());
         }
 
-        public void Update()
+        protected void Update()
         {
             if (Vector3.Distance(transform.position, _player.transform.position) < _range && _enemyHealth.IsAlive)
+            {
                 _playerInRange = true;
+                RotateTowardsPlayer(_player.transform);
+            }
             else
+
                 _playerInRange = false;
+
+
+            _anim.SetBool("playerInRange", _playerInRange);
         }
 
         // ReSharper disable once FunctionRecursiveOnAllPaths
@@ -43,6 +57,13 @@ namespace _Scripts.BarbarianScripts
             yield return null;
             StartCoroutine(Attack());
         }
+        
+        private void RotateTowardsPlayer(Transform player)
+        {
+            var direction = (player.position - transform.position).normalized;
+            var rotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 10f);
+        }
 
         public void EnemyBeginAttack()
         {
@@ -55,5 +76,11 @@ namespace _Scripts.BarbarianScripts
             foreach (var weaponCollider in _weaponColliders)
                 weaponCollider.enabled = false;
         }
+
+        public void BossFireTornadoAttack()
+        {
+            
+        }
+
     }
 }

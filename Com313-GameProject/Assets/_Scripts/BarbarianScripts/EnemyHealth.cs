@@ -64,25 +64,27 @@ namespace _Scripts.BarbarianScripts
             if (!(_timer >= _timeSinceLastHit) || GameManager.Instance.GameOver || !IsAlive) return;
             if (!other.CompareTag("PlayerWeapon")) return;
             _blood.Play();
-            TakeHit();
+            TakeHit(10);
             _timer = 0;
         }
 
-        private void TakeHit()
+        public void TakeHit(int damage)
         {
             if (_currentHealth > 0)
             {
-                _currentHealth -= 10;
+                _currentHealth -= damage;
                 _anim.Play("Hurt");
                 _audioSource.PlayOneShot(_audioSource.clip);
             }
+            
+            print(_currentHealth);
 
             if (_currentHealth > 0) return;
             IsAlive = false;
             GameManager.Instance.KillEnemy();
             KillEnemy();
         }
-
+        
         private void KillEnemy()
         {
             var point = Instantiate(UI_Points, transform.position + Vector3.up, this.transform.rotation);

@@ -9,9 +9,14 @@ namespace _Scripts.BarbarianScripts
 {
     public class GameManager : MonoBehaviour
     {
+        [SerializeField] private GameObject _arrow;
+
         public static GameManager Instance;
         public Transform[] SpawnPoints;
         public GameObject[] Enemy;
+        public Transform[] PowerUpSpwans;
+        public GameObject[] PowerUps;
+        public int MaxPowerUps = 4;
         public int TotalEnemies = 20;
         public Text LevelText;
         public GameObject Portal;
@@ -24,6 +29,11 @@ namespace _Scripts.BarbarianScripts
 
         // ReSharper disable once InconsistentNaming
         private float _playerXP;
+
+        private float _currentPowerUpSpawnTime = 0;
+        [SerializeField] private float _powerUpSpawnTime = 60;
+        private int _powerUps = 0;
+
         
         // Portal Transform Variables
         private GameObject _cutScenesCamera;
@@ -63,6 +73,21 @@ namespace _Scripts.BarbarianScripts
             get { return _player; }
         }
 
+        public GameObject Arrow
+        {
+            get { return _arrow; }
+        }
+
+        public void RegisterPowerUp()
+        {
+            _powerUps++;
+        }
+        
+        public void UnRegisterPowerUp()
+        {
+            _powerUps = _powerUps > 0 ? _powerUps-- : 0;
+        }
+
         private void Awake()
         {
             if (Instance == null)
@@ -88,6 +113,9 @@ namespace _Scripts.BarbarianScripts
             if(CurrentLevel == 2)
                 ChildCamera.SetActive(false);
             XPScript.Instance.UpdateXP(_playerXP);
+            
+            StartCoroutine(PowerUpSpawn());
+
         }
 
         private void SpawnEnemies()
@@ -110,20 +138,24 @@ namespace _Scripts.BarbarianScripts
                 ShowHintText();
             
             _currentSpawnTime += Time.deltaTime;
+            _currentPowerUpSpawnTime += Time.deltaTime;
+            
             if (_currentSpawnTime > _generatedSpawnTime)
                 _currentSpawnTime = 0;
             
             if (CurrentLevel <= 1) return;
 
             if (CurrentLevel == 2)
+            {
                 if (_enteredPortal)
                     MoveCameraToTargetPortal();
-            
-            if (_spawnedPortals) return;
-            _portalSpawnTimer -= Time.deltaTime;
 
-            if (_portalSpawnTimer <= 0)
-                SpawnPortals();
+                if (_spawnedPortals) return;
+                _portalSpawnTimer -= Time.deltaTime;
+
+                if (_portalSpawnTimer <= 0)
+                    SpawnPortals();
+            } 
         }
 
         private void ShowHintText()
@@ -266,6 +298,33 @@ namespace _Scripts.BarbarianScripts
         {
             _spawnedPortals = false;
             _portalInScene--;
+        }
+
+        // ReSharper disable once FunctionRecursiveOnAllPaths
+        private IEnumerator PowerUpSpawn()
+        {
+            if (_currentPowerUpSpawnTime > _powerUpSpawnTime)
+            {
+                _currentPowerUpSpawnTime = 0;
+                if (_powerUps < MaxPowerUps)
+                {
+                    var randomNumber = Random.Range(0, PowerUpSpwans.Length);
+                    var spawnLocation = PowerUpSpwans[randomNumber];
+
+                    while (spawnLocation.childCount != 0)
+                    {
+                        randomNumber = Random.Range(0, PowerUpSpwans.Length);
+                        spawnLocation = PowerUpSpwans[randomNumber];
+                    }
+                    var randomPowerUp = PowerUps[Random.Range(0, PowerUps.Length)];
+
+                    var newPowerup = Instantiate(randomPowerUp);
+                    newPowerup.transform.position = spawnLocation.transform.position;
+                    newPowerup.transform.parent = spawnLocation;
+                }
+            }
+            yield return null;
+            StartCoroutine(PowerUpSpawn());
         }
     }
 }
