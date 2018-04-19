@@ -50,6 +50,8 @@ namespace _Scripts.BarbarianScripts
 
 		private void CheckInput()
 		{
+			if(GameManager.Instance.CurrentLevel == 1) return;
+			
 			if (Input.GetKeyDown(KeyCode.Alpha1) && _canAttack)
 			{
 				_fadeImages[0] = 1;
@@ -57,7 +59,7 @@ namespace _Scripts.BarbarianScripts
 				_canAttack = false;
 				LigntningSpecialAttack = true;
 			}
-			else if (Input.GetKeyDown(KeyCode.Alpha2) && _canAttack)
+			else if (Input.GetKeyDown(KeyCode.Alpha2) && _canAttack && GameManager.Instance.CurrentLevel > 2)
 			{
 				_fadeImages[1] = 1;
 				_animator.Play("SpinAttack");

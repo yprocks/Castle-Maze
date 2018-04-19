@@ -28,5 +28,8 @@ namespace _Scripts.MenuScripts
         {
             
         }
+        public void BossFireTornadoAttack()
+        {
+        }
     }
 }

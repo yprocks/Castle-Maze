@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 namespace _Scripts.BarbarianScripts
 {
@@ -28,6 +29,8 @@ namespace _Scripts.BarbarianScripts
         private float _timer;
         private ParticleSystem _blood;
 
+        private Image _bossHealth;
+        
         private SpriteRenderer _uiRenderer;
         
         private void Awake()
@@ -46,8 +49,6 @@ namespace _Scripts.BarbarianScripts
             _currentHealth = _health;
             _timer = 0f;
             _destroyEnemy = false;
-
-   
         }
 
         private void Update()
@@ -56,9 +57,15 @@ namespace _Scripts.BarbarianScripts
 
             if (_destroyEnemy)
                 transform.Translate(-Vector3.up * _destroySpeed * Time.deltaTime);
-            
-        }
 
+            if (!gameObject.CompareTag("Boss")) return;
+            if (!GameManager.Instance.BossSpawn) return;
+            if (_bossHealth == null)
+                _bossHealth = GameObject.FindGameObjectWithTag("BossHealth").GetComponent<Image>();
+            else
+                SetHealthSilder();
+        }
+        
         private void OnTriggerEnter(Collider other)
         {
             if (!(_timer >= _timeSinceLastHit) || GameManager.Instance.GameOver || !IsAlive) return;
@@ -76,13 +83,21 @@ namespace _Scripts.BarbarianScripts
                 _anim.Play("Hurt");
                 _audioSource.PlayOneShot(_audioSource.clip);
             }
-            
-            print(_currentHealth);
-
+           
             if (_currentHealth > 0) return;
             IsAlive = false;
-            GameManager.Instance.KillEnemy();
             KillEnemy();
+            GameManager.Instance.KillEnemy(gameObject.tag);
+            
+            if(!gameObject.CompareTag("Boss")) return;
+            GetComponent<BossAttack>().enabled = false;
+        }
+        
+        private void SetHealthSilder()
+        {
+            var healthAmount = _bossHealth.fillAmount;
+            var toHealth = (float) _currentHealth / _health;
+            _bossHealth.fillAmount = Mathf.Lerp(healthAmount, toHealth, Time.deltaTime * 15f);
         }
         
         private void KillEnemy()

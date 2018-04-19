@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Security.Permissions;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,6 +11,16 @@ namespace _Scripts.BarbarianScripts
     public class GameManager : MonoBehaviour
     {
         [SerializeField] private GameObject _arrow;
+
+        // Boss Variables
+        public Transform BossSpawn;
+        public GameObject Boss;
+        public GameObject BossHealthBar;
+        private bool _bossSpawned = false;
+        public bool TriggerBoss { get; set; }
+        private bool _bossKilled = false;
+
+        // Boss Variables
 
         public static GameManager Instance;
         public Transform[] SpawnPoints;
@@ -24,7 +35,7 @@ namespace _Scripts.BarbarianScripts
         private int _enemy;
 
         private GameState _gameState;
-        
+
         public float PortalSpawnTime;
 
         // ReSharper disable once InconsistentNaming
@@ -34,7 +45,8 @@ namespace _Scripts.BarbarianScripts
         [SerializeField] private float _powerUpSpawnTime = 60;
         private int _powerUps = 0;
 
-        
+        public bool SpawnEnemy { private get; set; }
+
         // Portal Transform Variables
         private GameObject _cutScenesCamera;
 
@@ -82,7 +94,7 @@ namespace _Scripts.BarbarianScripts
         {
             _powerUps++;
         }
-        
+
         public void UnRegisterPowerUp()
         {
             _powerUps = _powerUps > 0 ? _powerUps-- : 0;
@@ -94,12 +106,13 @@ namespace _Scripts.BarbarianScripts
                 Instance = this;
             else if (Instance != this)
                 Destroy(gameObject);
-            
+
             CurrentLevel = SceneManager.GetActiveScene().buildIndex;
         }
 
         public void Start()
         {
+            BossHealthBar.SetActive(false);
             _portalInScene = 0;
             _shownHintPanel = false;
             _enemy = TotalEnemies;
@@ -109,18 +122,19 @@ namespace _Scripts.BarbarianScripts
             LevelText.text = "Level " + CurrentLevel;
             _cutScenesCamera = GameObject.Find("Follow Camera");
             _portalSpawnTimer = PortalSpawnTime;
+            SpawnEnemy = CurrentLevel != 3;
             InvokeRepeating("SpawnEnemies", 2f, 1f);
-            if(CurrentLevel == 2)
+            if (CurrentLevel == 2)
                 ChildCamera.SetActive(false);
             XPScript.Instance.UpdateXP(_playerXP);
-            
-            StartCoroutine(PowerUpSpawn());
 
+            TriggerBoss = false;
+            StartCoroutine(PowerUpSpawn());
         }
 
         private void SpawnEnemies()
         {
-            if (_enemyCount > TotalEnemies) return;
+            if (_enemyCount >= TotalEnemies || !SpawnEnemy) return;
             foreach (var spawnPoint in SpawnPoints)
             {
                 if (spawnPoint.transform.childCount != 0) continue;
@@ -134,15 +148,17 @@ namespace _Scripts.BarbarianScripts
 
         private void Update()
         {
-            if (EnemyKilled())
-                ShowHintText();
-            
+            if (EnemyKilled() && CurrentLevel == 2)
+                ShowHintText("Hey Barbarian!", "Find a way to exit. Enough play with Orcs!!!");
+            else if (EnemyKilled() && CurrentLevel == 3)
+                ShowHintText("Hey Barbarian!", "Well donw! Now find your a way to the boss");
+
             _currentSpawnTime += Time.deltaTime;
             _currentPowerUpSpawnTime += Time.deltaTime;
-            
+
             if (_currentSpawnTime > _generatedSpawnTime)
                 _currentSpawnTime = 0;
-            
+
             if (CurrentLevel <= 1) return;
 
             if (CurrentLevel == 2)
@@ -155,13 +171,39 @@ namespace _Scripts.BarbarianScripts
 
                 if (_portalSpawnTimer <= 0)
                     SpawnPortals();
-            } 
+            }
+
+            if (CurrentLevel != 3)
+                return;
+
+            CheckAndBossSpawn();
+            CheckGameOver();
         }
 
-        private void ShowHintText()
+        private void CheckGameOver()
+        {
+            if (!_bossKilled || !EnemyKilled()) return;
+            _gameState = GameState.PlayerWon;
+            PlayerPrefs.SetInt("GameOver", (int) GameState.PlayerWon);
+            StartCoroutine(LoadNewLevel("GameOver"));
+        }
+
+        private void CheckAndBossSpawn()
+        {
+            if (_bossSpawned || _bossKilled)
+                return;
+            if (!TriggerBoss || !EnemyKilled()) return;
+            BossHealthBar.SetActive(true);
+            _bossSpawned = true;
+            InGameTextManager.GetInstance().ShowPanelForSeconds("Hey Barbarian!",
+                "Get Ready!! Focus on the boss and look for the weakpoint!!", 15);
+            Instantiate(Boss, BossSpawn.position, Quaternion.identity);
+        }
+
+        private void ShowHintText(string title, string text)
         {
             if (_shownHintPanel) return;
-            InGameTextManager.GetInstance().ShowPanelForSeconds("Hey Barbarian!", "Find a way to exit. Enough play with Orcs!!!", 15);
+            InGameTextManager.GetInstance().ShowPanelForSeconds(title, text, 15);
             _shownHintPanel = true;
         }
 
@@ -173,7 +215,7 @@ namespace _Scripts.BarbarianScripts
                 if (spawn.transform.childCount != 0) continue;
                 var obj = Instantiate(Portal, spawn.transform.position, Quaternion.identity);
                 obj.transform.parent = spawn.transform;
-                _portalInScene ++;
+                _portalInScene++;
             }
 
             _spawnedPortals = true;
@@ -255,10 +297,13 @@ namespace _Scripts.BarbarianScripts
         {
             return _playerXP;
         }
-        
-        public void KillEnemy()
+
+        public void KillEnemy(string enemtTag)
         {
-            _enemy--;
+            if (enemtTag == "Boss")
+                _bossKilled = true;
+            else
+                _enemy--;
         }
 
         public bool EnemyKilled()
@@ -279,17 +324,16 @@ namespace _Scripts.BarbarianScripts
             }
             else
                 StartCoroutine(LoadNewLevel(CurrentLevel + 1));
-
         }
-        
+
         private static IEnumerator LoadNewLevel(int index)
         {
             yield return new WaitForSeconds(2f);
             SceneManager.LoadScene(index);
         }
-        
+
         private static IEnumerator LoadNewLevel(string level)
-        {            
+        {
             yield return new WaitForSeconds(2f);
             SceneManager.LoadScene(level);
         }
@@ -316,6 +360,7 @@ namespace _Scripts.BarbarianScripts
                         randomNumber = Random.Range(0, PowerUpSpwans.Length);
                         spawnLocation = PowerUpSpwans[randomNumber];
                     }
+
                     var randomPowerUp = PowerUps[Random.Range(0, PowerUps.Length)];
 
                     var newPowerup = Instantiate(randomPowerUp);
@@ -323,6 +368,7 @@ namespace _Scripts.BarbarianScripts
                     newPowerup.transform.parent = spawnLocation;
                 }
             }
+
             yield return null;
             StartCoroutine(PowerUpSpawn());
         }
